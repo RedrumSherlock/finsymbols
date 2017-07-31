@@ -4,8 +4,8 @@ from bs4 import BeautifulSoup
 from finsymbols.symbol_helper import *
 
 
-def get_sp500_symbols():
-    page_html = wiki_html('List_of_S%26P_500_companies', 'SP500.html')
+def get_sp500_symbols(allow_cache=False):
+    page_html = wiki_html('List_of_S%26P_500_companies', 'SP500.html', allow_cache)
     wiki_soup = BeautifulSoup(page_html, "html.parser")
     symbol_table = wiki_soup.find(attrs={'class': 'wikitable sortable'})
 

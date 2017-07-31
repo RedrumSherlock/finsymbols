@@ -9,6 +9,7 @@ import finsymbols
 import pprint
 import csv
 import re
+import ssl
 
 
 def get_symbol_list(symbol_data, exchange_name):
@@ -68,7 +69,7 @@ def fetch_file(url):
     '''
     Gets and downloads files
     '''
-    file_fetcher = urllib.build_opener()
+    file_fetcher = urllib.build_opener(urllib.HTTPSHandler(context = ssl._create_unverified_context()))
     file_fetcher.addheaders = [('User-agent', 'Mozilla/5.0')]
     file_data = file_fetcher.open(url).read()
     if isinstance(file_data, str):  # Python2
@@ -77,7 +78,7 @@ def fetch_file(url):
         return file_data.decode("utf-8")
 
 
-def wiki_html(url, file_name):
+def wiki_html(url, file_name, allow_cache):
     '''
     Obtains html from Wikipedia
     Note: API exist but for my use case. Data returned was not parsable. Preferred to use html
@@ -86,11 +87,12 @@ def wiki_html(url, file_name):
     '''
     file_path = os.path.join(os.path.dirname(finsymbols.__file__), file_name)
 
-    if is_cached(file_path):
+    if allow_cache and is_cached(file_path):
         with open(file_path, "rb") as sp500_file:
             return sp500_file.read()
     else:
-        wiki_html = fetch_file('http://en.wikipedia.org/wiki/{}'.format(url))
+        wiki_html = fetch_file('https://en.wikipedia.org/wiki/{}'.format(url))
         # Save file to be used by cache
-        save_file(file_path, wiki_html)
+        if allow_cache:
+            save_file(file_path, wiki_html)
         return wiki_html
